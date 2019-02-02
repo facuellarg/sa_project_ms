@@ -17,6 +17,7 @@ func connect() *sql.DB {
 		log.Fatal("No entro base de datos")
 
 	}
+	log.Println(db)
 
 	return db
 }
