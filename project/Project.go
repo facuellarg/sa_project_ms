@@ -29,7 +29,12 @@ func AllProjects(w http.ResponseWriter, r *http.Request) {
 
 	var projects []Project
 	results, err := db.Query("SELECT * FROM projects")
-	log.Print("Empezo el get")
+	if err != nil {
+		log.Print("HAY ERROR")
+		log.Print(err.Error()) // proper error handling instead of panic in your app
+		json.NewEncoder(w).Encode(HttpResp{Status: 200, Description: "Failed to select project from database"})
+		return
+	}
 	for results.Next() {
 		var members, studyAreas, planningID string
 		var project Project
