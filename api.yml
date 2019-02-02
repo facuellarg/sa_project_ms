@@ -1,0 +1,200 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Microservice for Courses
+  description: Go + MySQL
+  license:
+    name: SA 2018-II Primera entrega
+host: 192.168.99.101:3000
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /projects:
+    post:
+      summary: Creates a new project
+      operationId: createProject
+      parameters:
+        - name: project
+          in: body
+          required: true
+          description: Project Object
+          schema:
+            $ref: '#/definitions/ProjectInput'
+      responses:
+        '200':
+          description: Created
+          schema:
+            $ref: '#/definitions/Project'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Response'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Response'
+    get:
+      summary: Returns all projects
+      operationId: getAllProjects
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: '#/definitions/ProjectsList'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Response'
+
+  /projects/{code}:
+    get:
+      summary: Returns a project with the given code
+      operationId: getProjectByCode
+      parameters:
+        - name: code
+          in: path
+          description: The code of the project to be returned
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: '#/definitions/Project'
+        '404':
+          description: Not Found
+        '406':
+          description: Not Acceptable (Invalid Params)
+        '500':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Response'
+
+    put:
+      summary: Updates a members project with the given code
+      operationId: updateProject
+      parameters:
+        - name: code
+          in: path
+          description: The code of the project to be updated
+          required: true
+          type: integer
+        - name: project
+          in: body
+          required: true
+          description: Project Object
+          schema:
+            $ref: '#/definitions/ProjectInput'
+      responses:
+        '200':
+          description: Ok
+          schema:
+            $ref: '#/definitions/Project'
+        '404':
+          description: Not Found
+        '500':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Response'
+
+    delete:
+      summary: Deletes a project with the given code
+      operationId: deleteProject
+      parameters:
+        - name: code
+          in: path
+          description: The code of the course to be deleted
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Ok
+          schema:
+            type: integer
+        '404':
+          description: Not Found
+        '406':
+          description: Not Acceptable (Invalid Params)
+        '500':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Response'
+
+definitions:
+
+  Project:
+    type: object
+    properties:
+      Proyecto_Id:
+        type: integer 
+      Planeacion_Id:
+        type: array
+        items:
+          type: integer
+      Status:
+        type: string
+      Miembros:
+        type: array
+        items:
+          type: string
+      Lider_de_proyecto:
+        type: string
+      Titulo:
+        type: string
+      Areas_de_estudio:
+        type: array
+        items:
+          type: integer
+      Descripcion:
+        type: string
+
+        
+  ProjectInput:
+    type: object
+    properties:
+      Planeacion_Id:
+        type: array
+        items:
+          type: integer
+      Status:
+        type: string
+      Miembros:
+        type: array
+        items:
+          type: string
+      Lider_de_proyecto:
+        type: string
+      Titulo:
+        type: string
+      Areas_de_estudio:
+        type: array
+        items:
+          type: integer
+      Descripcion:
+        type: string
+
+  
+  ProjectsList:
+    type: object
+    required:
+      - list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/Project'
+  
+  Response:
+    type: object
+    properties:
+      status:
+        type: integer
+      description:
+        type: string
+      body:
+        type: string #usualmente es la id

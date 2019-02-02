@@ -1,0 +1,30 @@
+version: "2.1"
+
+services:
+  project-ms:
+    build: ./
+    volumes:
+      - ./project:/go/src/app
+    ports:
+      - "3003:3003"
+    depends_on:
+      project-db:
+        condition: service_healthy
+
+
+  project-db:
+    image: mysql:5.7
+    healthcheck:
+      test: "mysqlcheck -u$$MYSQL_USER -p$$MYSQL_PASSWORD $$MYSQL_DATABASE"
+      interval: 20s
+      timeout: 5s
+      retries: 15
+    volumes:
+      - ./initDB:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: project
+      MYSQL_USER: projectUser
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "4003:3306"
