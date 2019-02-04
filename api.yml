@@ -1,12 +1,13 @@
 swagger: '2.0'
 info:
   version: 1.0.0
-  title: Microservice for Courses
+  title: Microservice for Projects
   description: Go + MySQL
   license:
-    name: SA 2018-II Primera entrega
-host: 192.168.99.101:3000
+    name: SA 2018-II Sexta entrega
+host: 192.168.99.102:3003
 basePath: /
+
 schemes:
   - http
 consumes:
@@ -124,7 +125,30 @@ paths:
           description: unexpected error
           schema:
             $ref: '#/definitions/Response'
-
+  /projects/leader/{code}:
+    get:
+        summary: Returns a project with a leader that  have the  code
+        operationId: getProjectByLeaderCoder
+        parameters:
+          - name: code
+            in: path
+            description: The code the leader of the project to be returned
+            required: true
+            type: integer
+        responses:
+          '200':
+            description: Ok
+            schema:
+              $ref: '#/definitions/Project'
+          '404':
+            description: Not Found
+          '406':
+            description: Not Acceptable (Invalid Params)
+          '500':
+            description: unexpected error
+            schema:
+              $ref: '#/definitions/Response'
+  
 definitions:
 
   Project:
@@ -174,7 +198,7 @@ definitions:
       Areas_de_estudio:
         type: array
         items:
-          type: integer
+          type: string
       Descripcion:
         type: string
 
