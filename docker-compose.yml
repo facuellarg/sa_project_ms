@@ -19,8 +19,6 @@ services:
       interval: 20s
       timeout: 5s
       retries: 15
-    volumes:
-      - ./initDB:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: project
