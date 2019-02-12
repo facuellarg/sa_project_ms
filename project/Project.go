@@ -41,7 +41,6 @@ func AllProjects(w http.ResponseWriter, r *http.Request) {
 		err = results.Scan(&project.ProjectID,
 			&planningID, &project.Status, &members, &project.ProjectLeader,
 			&project.Title, &studyAreas, &project.Description)
-		log.Print("esta en el for")
 		if err != nil {
 			log.Print("HAY ERROR")
 			log.Print(err.Error()) // proper error handling instead of panic in your app
