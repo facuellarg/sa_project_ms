@@ -14,7 +14,7 @@ import (
 
 type Project struct {
 	ProjectID     int      `json:"Proyecto_Id"`
-	PlanningID    []int    `json:"Planeacion_Id"`
+	PlanningID    string   `json:"Planeacion_Id"`
 	Status        string   `json:"Status"`
 	Members       []string `json:"Miembros"`
 	ProjectLeader string   `json:"Lider_de_proyecto"`
@@ -36,10 +36,10 @@ func AllProjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for results.Next() {
-		var members, studyAreas, planningID string
+		var members, studyAreas string
 		var project Project
 		err = results.Scan(&project.ProjectID,
-			&planningID, &project.Status, &members, &project.ProjectLeader,
+			&project.PlanningID, &project.Status, &members, &project.ProjectLeader,
 			&project.Title, &studyAreas, &project.Description)
 		if err != nil {
 			log.Print("HAY ERROR")
@@ -49,12 +49,6 @@ func AllProjects(w http.ResponseWriter, r *http.Request) {
 		}
 		project.Members = strings.Split(members, ", ")
 		project.StudyArea = strings.Split(studyAreas, ", ")
-		arrp := strings.Split(planningID, ", ")
-		for i := 0; i < len(arrp); i++ {
-			num, _ := strconv.Atoi(arrp[i])
-			project.PlanningID = append(project.PlanningID, num)
-		}
-
 		projects = append(projects, project)
 	}
 
@@ -73,11 +67,11 @@ func GetProjectbyCode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var project Project
-	var members, studyAreas, planningID string
+	var members, studyAreas string
 	// Execute the query
 	err = db.QueryRow("SELECT * FROM projects where Project_Id = ?", projectID).Scan(
 		&project.ProjectID,
-		&planningID, &project.Status, &members, &project.ProjectLeader,
+		&project.PlanningID, &project.Status, &members, &project.ProjectLeader,
 		&project.Title, &studyAreas, &project.Description)
 	if err != nil {
 		log.Print(err.Error()) // proper error handling instead of panic in your app
@@ -86,11 +80,6 @@ func GetProjectbyCode(w http.ResponseWriter, r *http.Request) {
 	}
 	project.Members = strings.Split(members, ", ")
 	project.StudyArea = strings.Split(studyAreas, ", ")
-	arrp := strings.Split(planningID, ", ")
-	for i := 0; i < len(arrp); i++ {
-		num, _ := strconv.Atoi(arrp[i])
-		project.PlanningID = append(project.PlanningID, num)
-	}
 
 	json.NewEncoder(w).Encode(project)
 }
@@ -101,11 +90,11 @@ func GetProjectbLeader(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	l := vars["id"]
 	var project Project
-	var members, studyAreas, planningID string
+	var members, studyAreas string
 	// Execute the query
 	err := db.QueryRow("SELECT * FROM projects where ProjectLeader = ?", l).Scan(
 		&project.ProjectID,
-		&planningID, &project.Status, &members, &project.ProjectLeader,
+		&project.PlanningID, &project.Status, &members, &project.ProjectLeader,
 		&project.Title, &studyAreas, &project.Description)
 	if err != nil {
 		log.Print(err.Error()) // proper error handling instead of panic in your app
@@ -114,11 +103,6 @@ func GetProjectbLeader(w http.ResponseWriter, r *http.Request) {
 	}
 	project.Members = strings.Split(members, ", ")
 	project.StudyArea = strings.Split(studyAreas, ", ")
-	arrp := strings.Split(planningID, ", ")
-	for i := 0; i < len(arrp); i++ {
-		num, _ := strconv.Atoi(arrp[i])
-		project.PlanningID = append(project.PlanningID, num)
-	}
 
 	json.NewEncoder(w).Encode(project)
 }
@@ -140,13 +124,12 @@ func InsertProject(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(HttpResp{Status: 200, Description: "Requerido: Lider_de_proyecto:string"})
 		return
 	}
-	planningID := (arrayToString(project.PlanningID, ", "))
 	members := (strings.Join(project.Members, ", "))
 	studyAreas := strings.Join(project.StudyArea, ", ")
 
 	stmt, _ := db.Prepare("INSERT INTO projects values (?,?,?,?,?,?,?,?)")
 	res, err := stmt.Exec(0,
-		planningID,
+		project.PlanningID,
 		project.Status,
 		members,
 		project.ProjectLeader,
@@ -203,7 +186,6 @@ func EditProjectMembers(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var newProject Project
 	err := decoder.Decode(&newProject)
-	planningID := (arrayToString(newProject.PlanningID, ", "))
 	members := (strings.Join(newProject.Members, ", "))
 	studyAreas := strings.Join(newProject.StudyArea, ", ")
 
@@ -218,7 +200,7 @@ func EditProjectMembers(w http.ResponseWriter, r *http.Request) {
 	stmt, _ := db.Prepare("UPDATE projects SET Planning_Id=?,Estado=?,Members = ?,ProjectLeader=?,Title=?,StudyArea=?, Description=? WHERE Project_Id = ?")
 
 	_, err = stmt.Exec(
-		planningID,
+		newProject.PlanningID,
 		newProject.Status,
 		members,
 		newProject.ProjectLeader,
